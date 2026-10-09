@@ -90,3 +90,14 @@ host interpreters. The Alpine verification passed 260 tests and 68 subtests;
 the deployed runtime passed the same six security cases. See
 [container patch maintenance](../docker/SECURITY_PATCHES.md) before changing its
 base or removing backports.
+
+## OpenAI plugin package
+
+The private package lives in `plugins/jamf-read-only/`; its repository marketplace
+is `.agents/plugins/marketplace.json`. See [Plugin setup](OPENAI_PLUGIN.md) for
+local and ChatGPT connection prerequisites and host acceptance checks.
+`scripts/package_openai_plugin.py` reuses the shared skills with an actual
+hosted endpoint or registered ChatGPT app ID; generated artifacts belong in
+ignored `dist/`. Keep the local stdio package usable while preparing remote
+releases. Keep credentials and machine paths out of package files. The shared check exercises the package launch
+arguments through MCP, including read-only catalogue and direct-write rejection.

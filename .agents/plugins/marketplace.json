@@ -1,0 +1,20 @@
+{
+  "name": "jamf-mcp-development",
+  "interface": {
+    "displayName": "Jamf MCP Development"
+  },
+  "plugins": [
+    {
+      "name": "jamf-read-only",
+      "source": {
+        "source": "local",
+        "path": "./plugins/jamf-read-only"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -15,6 +15,8 @@ API documentation before connecting a Jamf tenant. Management tools need
 credentials for the products you choose. Keep secrets in your local environment
 or password manager.
 
+Requires Python 3.10+ and the MCP SDK `mcp>=2.3.0,<3`.
+
 For manual setup, follow [Installation](docs/INSTALLATION.md). For a local
 service with TLS and reader-only access, use [Docker Compose](docs/LOCAL_DOCKER.md).
 
@@ -37,6 +39,14 @@ Once connected, try:
 See [Tools](docs/TOOLS.md) for the full catalogue. Local Pro and documentation
 reads have been verified. Other products and external hosting still need live
 validation; see [validation status](docs/LOCAL_DOCKER.md#current-validation-status).
+
+## Private OpenAI plugin
+
+One portable read-only plugin packages setup checks, inventory, troubleshooting
+and compliance skills for ChatGPT and Codex. The repository package uses local
+stdio; a packaging helper reuses the same skills with a hosted or registered
+connection. See [Plugin setup](docs/OPENAI_PLUGIN.md) for connection options and
+acceptance checks. ChatGPT connection registration and live host tests remain pending.
 
 ## Guides
 
