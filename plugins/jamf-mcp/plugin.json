@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "jamf-read-only",
-  "version": "0.2.0",
-  "description": "Read-only Jamf inventory, device troubleshooting and compliance workflows.",
+  "name": "jamf-mcp",
+  "version": "0.3.0",
+  "description": "Jamf inventory, device troubleshooting and compliance workflows.",
   "author": {
     "name": "Jamf MCP maintainers"
   },
@@ -11,9 +11,9 @@
   "extensions": {
     "com.openai": {
       "interface": {
-        "displayName": "Jamf Read-only",
+        "displayName": "Jamf MCP",
         "shortDescription": "Inspect Jamf inventory, device reports and compliance.",
-        "longDescription": "Read-only Jamf workflows for ChatGPT and Codex. This local package launches a stdio server; remote packaging supports hosted or registered connections. Tenant reads require separately configured server credentials.",
+        "longDescription": "Jamf workflows for ChatGPT and Codex. The local package starts a stdio server with writes disabled. Live validation covers read-only workflows; tenant access needs separately configured credentials.",
         "developerName": "Jamf MCP maintainers",
         "category": "Productivity",
         "capabilities": [

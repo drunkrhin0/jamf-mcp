@@ -1,14 +1,14 @@
 {
-  "name": "jamf-mcp-development",
+  "name": "jamf-mcp",
   "interface": {
-    "displayName": "Jamf MCP Development"
+    "displayName": "Jamf MCP"
   },
   "plugins": [
     {
-      "name": "jamf-read-only",
+      "name": "jamf-mcp",
       "source": {
         "source": "local",
-        "path": "./plugins/jamf-read-only"
+        "path": "./plugins/jamf-mcp"
       },
       "policy": {
         "installation": "AVAILABLE",

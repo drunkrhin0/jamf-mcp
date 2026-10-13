@@ -116,37 +116,10 @@ and [verified API contracts](PLATFORM_API_RESEARCH.md) for paths and limits.
 
 ## Validation status
 
-Offline tests exercise the production MCP tools with simulated Jamf HTTP
-responses, including authentication, environment context, reporting results and
-read-only authorization. Live Jamf Pro reads were previously verified locally.
-Live Platform authentication and reporting remain pending until the separate
-integration credentials are supplied and its probes pass.
-
-### Direct Pro reads checked on 7 October 2026
-
-Using the existing Pro client and one computer selected internally, the direct
-conditional-access device compliance endpoint returned HTTP 200 with an empty
-record array. This confirms access for that sampled device, not benchmark
-results or a compliant device state. The DDM status-items endpoint returned
-HTTP 403 with `INVALID_PRIVILEGE`. This tenant’s schema and the
-[DDM API reference](https://developer.jamf.com/jamf-pro/reference/get_v1-ddm-clientmanagementid-status-items)
-require both **Read Computers** and **Read Mobile Devices**. The supplied role
-list includes Read Computers but omits Read Mobile Devices; add that read
-privilege before retrying DDM. These checks called Pro directly and did not
-exercise the seven Platform MCP tools.
-
-After Read Mobile Devices was added to the same Pro role, a fresh-token retry
-returned HTTP 200 with DDM status items for the sampled computer. This verifies
-the direct Pro DDM read. It does not validate Blueprint definitions, benchmark
-results, the Platform gateway, or fleet-wide declaration deployment success.
-
-After exposing these reads as MCP tools, the rebuilt local service returned
-DDM status items for two sampled computers through
-`jamf_get_ddm_status`, without truncation. Both calls to
-`jamf_get_device_compliance_information` returned empty conditional-access
-records and an explicit note that they establish no CIS verdict. The MCP
-catalogue contained 37 read-only tools. A benchmark call stopped at the local
-"Jamf Platform is not configured" check; upstream CIS access remains untested.
+Live Platform authentication and reporting remain unverified until the separate
+integration credentials are supplied and its probes pass. Pro DDM and
+conditional-access reads have been checked locally. See [Validation](VALIDATION.md)
+for the recorded results and their limits.
 
 ## Read CIS results for a named Mac
 

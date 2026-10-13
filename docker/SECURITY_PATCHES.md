@@ -1,56 +1,47 @@
 # Container security patches
 
-The runtime uses digest-pinned Python 3.13.16 on Alpine. Build both stages from
-the same base so native wheels match the runtime's musl libraries. Package
-upgrades run during the build; zlib must be at least `1.3.2-r1`.
+The image applies CPython backports and uses Alpine's patched zlib. Keep this
+note with the patch files so a base-image update does not silently remove fixes.
+Build both stages from the same base for compatible musl wheels.
 
-BusyBox, its shell and TLS client are removed from the runtime. The CA bundle,
-base configuration data and a mode-1777 `/tmp` remain. Use Python or the MCP
-command when running commands in the container. The build CA is a temporary
-build secret; runtime certificate verification stays enabled.
+## Patch sources
 
-## Python backports
+| File or package | Source and behavior |
+| --- | --- |
+| `patches/CVE-2025-15367.patch` | [CPython PR 143924](https://github.com/python/cpython/pull/143924); POP3 rejects control characters before sending commands |
+| `patches/CVE-2026-12345.patch` | [Python 3.13 backport](https://github.com/python/cpython/pull/158429); directory cleanup uses open descriptors during permission-error recovery |
+| `patches/CVE-2026-12345-nofollow.patch` | Repository fix for remaining fallback/root races; permission resets refuse symlink traversal |
+| zlib `1.3.2-r1` or later | [Alpine recipe](https://github.com/alpinelinux/aports/blob/3.24-stable/main/zlib/APKBUILD); vendor fix for `CVE-2026-85091` |
 
-- `patches/CVE-2025-15367.patch` contains the library change from
-  [CPython PR 143924](https://github.com/python/cpython/pull/143924). POP3 rejects
-  C0 and DEL control characters before sending a command. Printable commands
-  retain their existing behavior.
-- `patches/CVE-2026-12345.patch` contains the library changes from the official
-  [Python 3.13 backport](https://github.com/python/cpython/pull/158429).
-  Temporary-directory cleanup uses open directory descriptors when recovering
-  from permission errors, preserving ordinary `shutil.rmtree` callbacks.
-- `patches/CVE-2026-12345-nofollow.patch` is a repository adjustment. It closes
-  the remaining permission-reset fallback and root-path races. Permission
-  resets explicitly refuse to follow symlinks. If the OS cannot perform the
-  safe reset, cleanup raises `OSError`; `ignore_cleanup_errors` retains its
-  existing error handling. This adjustment targets the shipped Linux runtime.
+CPython copyright and licence remain in the base image. The no-follow adjustment
+targets Linux. If the OS cannot safely reset permissions, cleanup raises
+`OSError`; `ignore_cleanup_errors` retains its existing handling. Replace
+backports with a fixed stable base only after the regressions pass.
 
-Both upstream patches include only affected library files. Their original
-CPython copyright and license remain in the base image. Replace the backports
-with a patched stable base when available, then repeat the regression tests.
+## Verify the runtime
 
-## Compression library
-
-Alpine's zlib `1.3.2-r1` includes the fix for `CVE-2026-85091`. Its
-[package recipe](https://github.com/alpinelinux/aports/blob/3.24-stable/main/zlib/APKBUILD)
-records the security fix and bundled upstream patch. An unchanged upstream
-version string does not indicate whether a distribution backport is present.
-
-## Verify the shipped runtime
-
-Run the six security tests as the container's nonroot user:
+Run the six security regressions as the container's nonroot user:
 
 ```bash
 docker compose --env-file .env.local exec -T -e JAMF_MCP_CONTAINER_SECURITY=1 jamf-mcp python - < tests/test_container_security.py
 ```
 
-The tests cover POP3 injection and printable commands, deletion and
-permission-change races, and cleanup of directories with restricted permissions.
-They are skipped in ordinary host tests because the host interpreter is not
-patched by this Dockerfile. Run the full suite in an Alpine development container
-to verify the native wheels, and repeat the read-only MCP probes in
-[Local Docker](../docs/LOCAL_DOCKER.md).
+They cover POP3 commands, deletion/permission races and ordinary restricted-directory
+cleanup. Host interpreters skip these tests because they lack the patches.
+After a base or dependency change, run the full suite in an Alpine development
+container and repeat the [MCP read probes](../docs/DOCKER.md).
 
-A fresh image scan must retain all matches. Classify version-based matches
-against the installed package revision, patch files and regression results;
-keep the raw report. Do not add ignore rules to conceal patched-version matches.
+## Scan the image
+
+Export the image so the scanner does not need the Docker socket:
+
+```bash
+mkdir -p .docker-local/scan
+docker image save jamf-mcp-jamf-mcp:latest -o .docker-local/scan/image.tar
+docker run --rm -v "$PWD/.docker-local/scan:/scan" anchore/grype@sha256:e4a44ef45d285b829ce6efe2642980329661bd2d18eab5fc539138d4adaebbbe docker-archive:/scan/image.tar -o json --file /scan/grype.json
+```
+
+This is the recorded scanner digest. Its downloaded database can change. Retain
+all matches and the raw report; classify version warnings against installed
+backports and regression evidence rather than adding ignore rules. Record the
+image ID and scanner/database versions in [Validation](../docs/VALIDATION.md).

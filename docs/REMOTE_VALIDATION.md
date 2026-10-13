@@ -1,5 +1,8 @@
 # Remote deployment validation
 
+This is optional guidance for hosted connections. Local installation uses
+[stdio](INSTALLATION.md#local-stdio) or [Docker Compose](DOCKER.md).
+
 This repository targets reusable local and remote deployments. Provider and
 hosting selection are deployment-time choices; no infrastructure is required to
 build or test it locally. Local stdio uses server-held
@@ -189,7 +192,7 @@ outcomes, requested/granted scope sets, and selected live read/write cases.
 Keep tokens and Jamf credentials out of the report. Mark any untested step as
 pending. The offline suite and local TLS/bearer deployment have been validated,
 including Pro inventory and documentation reads. See
-[Local Docker](LOCAL_DOCKER.md#current-validation-status) for that evidence.
+[Validation](VALIDATION.md) for that evidence.
 No public endpoint, live OAuth linking or external gateway policy has been
 validated.
 
@@ -201,3 +204,35 @@ After configuring the [separate Platform integration](PLATFORM_SETUP.md), use
 validate their respective permissions separately. DDM reporting still needs
 an existing Platform device UUID or declaration identifier and a nonempty
 filter; neither list probe establishes `declarations:read` access.
+
+## Optional plugin packaging
+
+The repository plugin uses local stdio. To package its four skills for a hosted
+HTTPS endpoint or registered ChatGPT connection, run one of:
+
+```bash
+uv run python scripts/package_openai_plugin.py --url "$JAMF_MCP_RESOURCE_URL" --output dist/jamf-mcp-http
+uv run python scripts/package_openai_plugin.py --app-id "$JAMF_CHATGPT_APP_ID" --output dist/jamf-mcp
+```
+
+Supply an actual endpoint including its MCP path, or the exact registered
+`plugin_asdk_app...` ID. The helper requires a new output directory and copies
+only the manifest, connection configuration and skills. It includes no tokens,
+headers or environment files. It does not deploy, register or install anything.
+The repository marketplace continues to use the local package.
+
+For a private ChatGPT connection, follow the official
+[connection and testing guide](https://developers.openai.com/plugins/deploy/connect-chatgpt).
+Keep the server in `--read-only` mode with Pro, Platform and documentation enabled.
+Use a reachable HTTPS endpoint or Secure MCP Tunnel. Configure authentication in
+the connection and keep backend credentials on the server.
+
+After registration, install the package in the intended host and start a new
+chat. Test setup and a live product read. Record host installation and skill
+selection separately from terminal probes. The local validation record does not
+establish remote OAuth linking or gateway policy.
+
+Public directory publication is outside this repository's local release scope.
+If that changes, use the current
+[submission requirements](https://developers.openai.com/plugins/deploy/submission)
+for endpoint, metadata, reviewer access and review cases.

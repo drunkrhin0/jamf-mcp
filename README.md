@@ -1,6 +1,6 @@
 # Jamf MCP
 
-One MCP connection for Jamf Pro, Platform, Protect, Security Cloud and API documentation.
+Connect a local MCP client to Jamf Pro, Platform, Protect, Security Cloud and API documentation.
 
 An independently maintained fork of the [original Jamf MCP server](https://github.com/Jamf-Concepts/mcp-hub).
 
@@ -10,25 +10,26 @@ Tell your agent:
 
 > Install Jamf MCP from https://github.com/drunkrhin0/jamf-mcp. Follow docs/INSTALLATION.md, configure it for my MCP client, and start it in read-only mode. Help me set up the Jamf products I need.
 
-The server starts without credentials. You can use its setup tools and public
-API documentation before connecting a Jamf tenant. Management tools need
-credentials for the products you choose. Keep secrets in your local environment
-or password manager.
-
 Requires Python 3.10+ and the MCP SDK `mcp>=2.3.0,<3`.
 
-For manual setup, follow [Installation](docs/INSTALLATION.md). For a local
-service with TLS and reader-only access, use [Docker Compose](docs/LOCAL_DOCKER.md).
+The server starts without credentials. Setup tools and public API documentation
+work before you connect a tenant. Store credentials for the products you need
+in your local environment or password manager.
+
+Follow [Installation](docs/INSTALLATION.md) for manual setup. Use
+[Docker Compose](docs/DOCKER.md) for a local service with TLS and read-only
+access. For the bundled skills and local plugin, follow
+[Plugin setup](docs/OPENAI_PLUGIN.md).
 
 ## What it supports
 
-| Product | Capabilities | Live validation |
-| --- | --- | --- |
-| Jamf Pro | Inventory, groups, policies, profiles, apps and device reports | Local inventory and device reports verified |
-| Jamf Platform | Read-only Blueprints, compliance benchmarks and DDM reports | Unverified; credentials required |
-| Jamf Protect | Enrolled computers, alerts and detection rules | Unverified |
-| Jamf Security Cloud | Device risk status and overrides | Unverified |
-| API documentation | Endpoint search, details and schemas without tenant credentials | Local reads verified |
+| Product | Capabilities |
+| --- | --- |
+| Jamf Pro | Inventory, groups, policies, profiles, apps and device reports |
+| Jamf Platform | Read-only Blueprints, compliance benchmarks and DDM reports |
+| Jamf Protect | Enrolled computers, alerts and detection rules |
+| Jamf Security Cloud | Device risk status and overrides |
+| API documentation | Endpoint search, details and schemas without tenant credentials |
 
 Once connected, try:
 
@@ -36,29 +37,20 @@ Once connected, try:
 - "Find all computers running macOS 15."
 - "Look up the API documentation for computer inventory."
 
-See [Tools](docs/TOOLS.md) for the full catalogue. Local Pro and documentation
-reads have been verified. Other products and external hosting still need live
-validation; see [validation status](docs/LOCAL_DOCKER.md#current-validation-status).
-
-## Private OpenAI plugin
-
-One portable read-only plugin packages setup checks, inventory, troubleshooting
-and compliance skills for ChatGPT and Codex. The repository package uses local
-stdio; a packaging helper reuses the same skills with a hosted or registered
-connection. See [Plugin setup](docs/OPENAI_PLUGIN.md) for connection options and
-acceptance checks. ChatGPT connection registration and live host tests remain pending.
+The server supports reads and writes. Only read-only workflows have been tested
+against live services. The bundled plugin and Compose setup disable writes.
+Local Pro inventory, device reports and documentation reads have been verified.
+Platform, Protect and Security Cloud live access remains unverified. See the
+[validation record](docs/VALIDATION.md) for tested paths and limits.
 
 ## Guides
 
-- [Installation](docs/INSTALLATION.md): credentials and MCP client configuration.
-- [Docker Compose](docs/LOCAL_DOCKER.md): local service, 1Password and live checks.
-- [Platform setup](docs/PLATFORM_SETUP.md): Blueprint and benchmark permissions.
-- [Documentation tools](docs/DOCUMENTATION.md): integrated API lookup.
-- [Remote deployment](docs/REMOTE_VALIDATION.md): authentication and hosting checks.
-- [Development](docs/DEVELOPMENT.md): tests, dependencies and contributions.
-- [Release readiness](docs/RELEASE_READINESS.md): current checks, test audit and pending acceptance.
-- [Container security patches](docker/SECURITY_PATCHES.md): backports and maintenance.
+- [Tools](docs/TOOLS.md): catalogue and required privileges.
+- [Platform setup](docs/PLATFORM_SETUP.md): Blueprint and benchmark credentials.
+- [Documentation lookup](docs/DOCUMENTATION.md): API search and schemas.
+- [Development](docs/DEVELOPMENT.md): checks, dependencies and maintenance.
 
 ## License
 
 [MIT](LICENSE). Original copyright 2026 Jamf Software LLC.
+Fork contributions copyright 2026 drunkrhin0.

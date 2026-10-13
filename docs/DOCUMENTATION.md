@@ -21,7 +21,7 @@ uv run jamf-mcp --products docs --read-only
 
 `docs` and `jamf_docs` select the same catalogue. Documentation tools belong to
 the `api` tool category, so `--tool-filter complex` excludes them. The repository's
-Compose service includes `pro platform docs`; follow [Local Docker](LOCAL_DOCKER.md)
+Compose service includes `pro platform docs`; follow [Docker setup](DOCKER.md)
 for its TLS and authentication setup. Rebuild the image after updating the code.
 
 ## Use

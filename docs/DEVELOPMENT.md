@@ -1,104 +1,66 @@
 # Development
 
-Install the development environment with `uv sync --extra dev`, then run
-`./scripts/check.sh`. The same check runs in CI. `./run_tests.sh` is a compatibility
-wrapper for these offline checks; its old mutating live-test mode has been retired.
+Install dependencies with `uv sync --extra dev`, then run `./scripts/check.sh`.
+CI runs the same check. `./run_tests.sh` is an offline compatibility wrapper.
 
-Tests under `tests/` call registered production tools through MCP clients.
-Isolate backend HTTP effects with mocked transports. Documentation adapter tests
-also isolate the upstream MCP client. Keep protocol results and authorization
-checks at the real MCP interface.
+Tests call registered production tools through MCP clients. Mock backend HTTP
+transports and the documentation service to keep these checks offline. Verify
+protocol results and authorization at the real MCP interface.
 
 ## Change tools
 
-Implement tools in the matching `src/jamf_mcp/tools/` module with `@jamf_tool`.
-Set read-only and destructive hints to describe actual state changes; the remote
-scope middleware enforces authorization. Tenant tools return JSON with `success`;
-documentation tools can return native `CallToolResult` objects. The shared
-registry preserves both contracts.
+Add tools to the matching `src/jamf_mcp/tools/` module with `@jamf_tool`.
+Set safety annotations to match their behavior. Remote scope enforcement uses
+these annotations. Tenant tools return JSON with `success`; documentation tools
+can return native `CallToolResult` objects. The registry preserves both contracts.
 
 Update [Tools](TOOLS.md), [Installation](INSTALLATION.md), and README counts when
-the catalogue or privileges change. Verify endpoints and permissions with the
-integrated [documentation lookup](DOCUMENTATION.md), especially when choosing
-between Pro and Platform credentials. See [Architecture](ARCHITECTURE.md) for
-the registration, transport and authorization boundaries.
+the catalogue or privileges change. Verify Jamf endpoints and permissions with
+[Documentation lookup](DOCUMENTATION.md), particularly when choosing between Pro
+and Platform credentials. [Architecture](ARCHITECTURE.md) covers registration,
+result contracts and authorization boundaries.
 
-## Live checks
+## Validate changes
 
-Use [Local Docker](LOCAL_DOCKER.md) for tenant reads and
-[Remote validation](REMOTE_VALIDATION.md) for deployed endpoint probes.
-Report Pro, Platform, Protect, Security Cloud and documentation results separately.
-Configured credentials alone do not prove upstream access. Do not run mutation
-tests against production. Blueprint and benchmark reads need the separate
-[Platform integration](PLATFORM_SETUP.md).
+Use [Docker setup](DOCKER.md) for live read-only checks. Record Pro,
+Platform, Protect, Security Cloud and documentation results separately in
+[Validation](VALIDATION.md). Configuration status alone does not prove upstream
+access. Run mutation tests only against an agreed disposable tenant.
 
-## Dependencies
+Platform reads need the [separate integration](PLATFORM_SETUP.md).
+[Remote validation](REMOTE_VALIDATION.md) is optional guidance for hosted OAuth
+or gateway deployments.
+
+## Dependencies and container patches
 
 `pyproject.toml` defines supported dependencies; `uv.lock` pins the resolved set.
-`requirements.txt` is retained for pip users, and tests enforce its parity with
-runtime metadata. To refresh compatible stable releases, run `uv lock --upgrade`
-followed by `uv sync --frozen --extra dev` and the shared check. Rebuild Compose
-and repeat live read-only checks after runtime dependency changes.
+Tests check runtime dependency parity with `requirements.txt` for pip users.
+To refresh compatible releases, run:
 
-The lock supports Python 3.10 and later. Some dependencies have older resolutions
-for Python 3.10; exact transitive pins, such as Pydantic's core version, can also
-prevent choosing a package's independent latest release. Do not remove those
-constraints merely to make an outdated-package report empty.
+```bash
+uv lock --upgrade
+uv sync --frozen --extra dev
+./scripts/check.sh
+```
 
-## Dependency and cleanup validation on 7 October 2026
+Rebuild Compose and repeat live reads after runtime dependency changes. The lock
+supports Python 3.10 and later, including alternate resolutions for older Python
+versions. Keep exact transitive constraints when their parent package requires
+them, even if an independent newer release exists.
 
-The dependency lock was refreshed against the package registry. The full suite
-passed on Python 3.10.22, 3.13.14 and 3.14.8: 254 tests on each runtime. Lint passed
-on the local development environment. The outdated-package recheck reported only
-`pydantic-core`: installed Pydantic 2.13.5 requires core 2.46.5 exactly, so the
-independent core 2.49.0 release is not a compatible upgrade.
+Read [Container security patches](../docker/SECURITY_PATCHES.md) before changing
+the image base or removing backports. The six container security regressions run
+with `JAMF_MCP_CONTAINER_SECURITY=1` in the patched Linux image and are skipped on
+host interpreters. That guide contains the runtime verification and scan commands.
 
-The Docker build retains uv 0.12.23, the current stable version checked against
-[PyPI](https://pypi.org/project/uv/). CI now uses
-[checkout 7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1) and
-[setup-uv 10.1.0](https://github.com/astral-sh/setup-uv/releases/tag/v10.1.0).
-Hosted contract CI passed on Python 3.10 and 3.14 for commit `9d0dc9e` on
-9 October 2026. See the [successful run](https://github.com/drunkrhin0/jamf-mcp/actions/runs/37889552694).
+## Local plugin
 
-Claude-specific instructions were replaced by repository skills under
-`.agents/skills`. The unused model module, duplicate live runners, name-mapping
-checker and remediation generator were removed. `run_tests.sh` remains only as
-an offline compatibility wrapper. Historical migration documents moved to
-`docs/archive/`, which is ignored by Git. Current instructions live in Development
-and Architecture.
+The plugin lives in `plugins/jamf-mcp/`; the repository marketplace is
+`.agents/plugins/marketplace.json`. Follow [Plugin setup](OPENAI_PLUGIN.md) for
+installation and host checks. The shared check launches the packaged command
+through MCP and verifies its read-only catalogue and direct-write rejection.
 
-The subsequent source cleanup removed twelve unused `JamfClient` methods and
-three duplicate raising client getters. Tools use the safe getters, which return
-the standard onboarding error when a product is unavailable. These removed
-Python helpers are no longer part of the package API; the MCP tool catalogue,
-`jamf_mcp` import name and `jamf-mcp` command remain compatible.
-
-The four existing prompt names now provide task guidance tied to available tools.
-Documentation tool descriptions use the upstream specification titles and paths.
-The README links the MIT license; upstream copyright notices remain in source.
-
-The final Docker runtime uses Python 3.13.16 and excludes build tools and caches.
-The full suite and lint passed on that patch release. The dependency recheck
-still reports only the Pydantic-constrained core version. See the
-[latest dependency scan record](LOCAL_DOCKER.md#final-dependency-scan-and-project-rename-on-7-october-2026)
-for remaining image advisories; current dependency versions do not imply a clean
-operating-system vulnerability scan.
-
-
-Container-specific security tests in `tests/test_container_security.py` run with
-`JAMF_MCP_CONTAINER_SECURITY=1` in the patched Linux image. They are skipped on
-host interpreters. The Alpine verification passed 260 tests and 68 subtests;
-the deployed runtime passed the same six security cases. See
-[container patch maintenance](../docker/SECURITY_PATCHES.md) before changing its
-base or removing backports.
-
-## OpenAI plugin package
-
-The private package lives in `plugins/jamf-read-only/`; its repository marketplace
-is `.agents/plugins/marketplace.json`. See [Plugin setup](OPENAI_PLUGIN.md) for
-local and ChatGPT connection prerequisites and host acceptance checks.
-`scripts/package_openai_plugin.py` reuses the shared skills with an actual
-hosted endpoint or registered ChatGPT app ID; generated artifacts belong in
-ignored `dist/`. Keep the local stdio package usable while preparing remote
-releases. Keep credentials and machine paths out of package files. The shared check exercises the package launch
-arguments through MCP, including read-only catalogue and direct-write rejection.
+Keep credentials and machine-specific paths out of shared package files.
+`scripts/package_openai_plugin.py` can prepare an optional remote package using
+an actual hosted endpoint or registered connection. Generated files belong in
+ignored `dist/`. See [Remote packaging](REMOTE_VALIDATION.md#optional-plugin-packaging).

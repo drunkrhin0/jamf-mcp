@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from mcp import Client, MCPError, StdioServerParameters
 
-PLUGIN_ROOT = Path(__file__).resolve().parents[1] / "plugins" / "jamf-read-only"
+PLUGIN_ROOT = Path(__file__).resolve().parents[1] / "plugins" / "jamf-mcp"
 
 
 @pytest.mark.parametrize("mode", ["2026-07-28", "legacy"])

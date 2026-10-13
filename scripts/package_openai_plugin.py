@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 from jamf_mcp.remote import validate_remote_resource_url
 
-PLUGIN_ROOT = Path(__file__).resolve().parents[1] / "plugins" / "jamf-read-only"
+PLUGIN_ROOT = Path(__file__).resolve().parents[1] / "plugins" / "jamf-mcp"
 
 
 def package_plugin(output: Path, *, url: str | None = None, app_id: str | None = None) -> Path:
@@ -26,7 +26,8 @@ def package_plugin(output: Path, *, url: str | None = None, app_id: str | None =
     manifest = json.loads((PLUGIN_ROOT / "plugin.json").read_text())
     extension = manifest["extensions"]["com.openai"]
     extension["interface"]["longDescription"] = (
-        "Read-only Jamf workflows for ChatGPT and Codex using a remote connection. "
+        "Jamf workflows for ChatGPT and Codex using a remote connection. "
+        "Only read-only workflows have live validation. "
         "Tenant reads require separately configured server credentials."
     )
     if app_id is not None:

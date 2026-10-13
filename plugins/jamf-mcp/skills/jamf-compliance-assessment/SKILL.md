@@ -7,8 +7,7 @@ Use the selected Jamf plugin connection in this chat. If its tools are missing,
 report the connection as unavailable and ask the user to connect/enable it.
 A terminal or Docker probe does not verify this plugin connection.
 
-
-Use the Jamf read-only MCP connection and discover the available tool schemas.
+Discover the available tool schemas on that connection.
 Call `jamf_get_setup_status`, then verify access with the relevant report read.
 If the product is unavailable, use `jamf_configure_help` for that product and
 report the missing access. Keep credentials outside chat.
