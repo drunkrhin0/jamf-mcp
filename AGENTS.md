@@ -8,12 +8,14 @@
 - Blueprints, benchmarks or Platform DDM: [Platform setup](docs/PLATFORM_SETUP.md)
   and [API contracts](docs/PLATFORM_API_RESEARCH.md).
 - Registration, results or authorization: [Architecture](docs/ARCHITECTURE.md).
-- Code, dependencies or tests: [Development](docs/DEVELOPMENT.md).
+- Code, dependencies, tests or releases: [Development](docs/DEVELOPMENT.md).
 - Plugin packaging or skills: [Plugin setup](docs/OPENAI_PLUGIN.md).
 - Container base or backports: [Security patches](docker/SECURITY_PATCHES.md).
 - Hosted OAuth or gateway deployment: [Remote validation](docs/REMOTE_VALIDATION.md).
 
 ## Verify changes
+
+Use Conventional Commit messages for new commits. Release rules are in Development.
 
 Run `uv sync --extra dev`, then `./scripts/check.sh`. Follow Development for
 catalogue and documentation updates. For live reads, follow Docker setup or

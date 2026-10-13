@@ -1,0 +1,128 @@
+name: Semantic release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      draft_tag:
+        description: Existing draft tag to retry (leave empty for release PR updates)
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: semantic-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      ready: ${{ steps.candidate.outputs.ready }}
+      tag: ${{ steps.candidate.outputs.tag }}
+      sha: ${{ steps.candidate.outputs.sha }}
+    steps:
+      - name: Update release PR or create draft release
+        if: inputs.draft_tag == ''
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: main
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      - name: Select draft release revision
+        id: candidate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_CREATED: ${{ steps.release.outputs.release_created }}
+          CREATED_TAG: ${{ steps.release.outputs.tag_name }}
+          RETRY_TAG: ${{ inputs.draft_tag }}
+        run: |
+          if [[ -n "$RETRY_TAG" ]]; then
+            tag="$RETRY_TAG"
+          elif [[ "$RELEASE_CREATED" == "true" ]]; then
+            tag="$CREATED_TAG"
+          else
+            exit 0
+          fi
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          draft=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)
+          [[ "$draft" == "true" ]]
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: prepare
+    if: needs.prepare.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.14']
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10.1.0
+      - run: uv sync --frozen --extra dev --python ${{ matrix.python }}
+      - run: ./scripts/check.sh
+      - name: Verify tag matches package version
+        env:
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          uv run --frozen python -c 'import os, jamf_mcp; assert os.environ["RELEASE_TAG"] == "v" + jamf_mcp.__version__'
+
+  secrets:
+    needs: prepare
+    if: needs.prepare.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Scan release history
+        run: |
+          docker run --rm -v "$PWD:/repo:ro" -w /repo \
+            ghcr.io/gitleaks/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+            git --log-opts=--all --redact --no-banner
+
+  publish:
+    needs: [prepare, verify, secrets]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10.1.0
+      - name: Build Python distributions
+        run: uv build --out-dir dist
+      - name: Archive local plugin
+        env:
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        working-directory: plugins/jamf-mcp
+        run: zip -r "$RUNNER_TEMP/jamf-mcp-${RELEASE_TAG}-plugin.zip" plugin.json mcp.json skills
+      - name: Upload artifacts and publish validated draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          gh release upload "$RELEASE_TAG" dist/*.whl dist/*.tar.gz \
+            "$RUNNER_TEMP/jamf-mcp-${RELEASE_TAG}-plugin.zip" --clobber
+          gh release edit "$RELEASE_TAG" --draft=false

@@ -64,3 +64,28 @@ Keep credentials and machine-specific paths out of shared package files.
 `scripts/package_openai_plugin.py` can prepare an optional remote package using
 an actual hosted endpoint or registered connection. Generated files belong in
 ignored `dist/`. See [Remote packaging](REMOTE_VALIDATION.md#optional-plugin-packaging).
+
+## Semantic releases
+
+Use Conventional Commits: `fix:` for a patch, `feat:` for a minor, and `feat!:`
+or a `BREAKING CHANGE:` footer for a major. Docs-only and ordinary chores do not
+start a release. The Python package, runtime, lock entry and plugin share one
+version, currently bootstrapped at 0.3.0.
+
+On `main`, [Release Please](https://github.com/googleapis/release-please-action)
+updates a release PR with version changes and a generated changelog. Merge that
+PR when ready to release. CI creates a draft with a `vX.Y.Z` tag, tests that exact
+revision on Python 3.10 and 3.14, scans history, and builds a wheel, source archive
+and local-plugin ZIP. It publishes the draft only after those checks pass.
+
+The workflow uses `GITHUB_TOKEN` and requires Actions to be allowed to create
+pull requests. GitHub combines this with approval permission in its "Allow
+GitHub Actions to create and approve pull requests" setting. It is enabled for
+this repository with the owner's approval; default workflow permissions remain
+read-only.
+Bot-created PRs do not trigger the ordinary PR workflows with
+this token; the release workflow independently validates the tagged revision.
+To retry a failed draft, rerun the **Semantic release** workflow on `main` with
+its existing tag in `draft_tag`. The workflow does not upload to PyPI or a plugin
+directory. Hosted release execution remains unverified until this setup reaches
+`main` and a release PR is merged.
