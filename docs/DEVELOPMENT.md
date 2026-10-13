@@ -57,7 +57,8 @@ The Docker build retains uv 0.12.23, the current stable version checked against
 [PyPI](https://pypi.org/project/uv/). CI now uses
 [checkout 7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1) and
 [setup-uv 10.1.0](https://github.com/astral-sh/setup-uv/releases/tag/v10.1.0).
-Hosted CI execution remains to be verified after pushing these changes.
+Hosted contract CI passed on Python 3.10 and 3.14 for commit `9d0dc9e` on
+9 October 2026. See the [successful run](https://github.com/drunkrhin0/jamf-mcp/actions/runs/37889552694).
 
 Claude-specific instructions were replaced by repository skills under
 `.agents/skills`. The unused model module, duplicate live runners, name-mapping

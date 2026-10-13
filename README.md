@@ -22,13 +22,13 @@ service with TLS and reader-only access, use [Docker Compose](docs/LOCAL_DOCKER.
 
 ## What it supports
 
-| Product | Capabilities |
-| --- | --- |
-| Jamf Pro | Inventory, groups, policies, profiles, apps and device reports |
-| Jamf Platform | Read-only Blueprints, compliance benchmarks and DDM reports |
-| Jamf Protect | Enrolled computers, alerts and detection rules |
-| Jamf Security Cloud | Device risk status and overrides |
-| API documentation | Endpoint search, details and schemas without tenant credentials |
+| Product | Capabilities | Live validation |
+| --- | --- | --- |
+| Jamf Pro | Inventory, groups, policies, profiles, apps and device reports | Local inventory and device reports verified |
+| Jamf Platform | Read-only Blueprints, compliance benchmarks and DDM reports | Unverified; credentials required |
+| Jamf Protect | Enrolled computers, alerts and detection rules | Unverified |
+| Jamf Security Cloud | Device risk status and overrides | Unverified |
+| API documentation | Endpoint search, details and schemas without tenant credentials | Local reads verified |
 
 Once connected, try:
 
@@ -56,6 +56,7 @@ acceptance checks. ChatGPT connection registration and live host tests remain pe
 - [Documentation tools](docs/DOCUMENTATION.md): integrated API lookup.
 - [Remote deployment](docs/REMOTE_VALIDATION.md): authentication and hosting checks.
 - [Development](docs/DEVELOPMENT.md): tests, dependencies and contributions.
+- [Release readiness](docs/RELEASE_READINESS.md): current checks, test audit and pending acceptance.
 - [Container security patches](docker/SECURITY_PATCHES.md): backports and maintenance.
 
 ## License

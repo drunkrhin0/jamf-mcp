@@ -11,16 +11,21 @@ only when a documentation tool is called. No second container is required.
 
 ## Current validation status
 
-As of 8 October 2026, the renamed Compose service receives its Pro credentials
-from the 1Password mount at the current checkout's `.env` path. The Pro inventory
-read, TLS admission, authenticated discovery, 46-tool read-only catalogue and
-direct write denial passed. All six container security regressions passed.
+As of 13 October 2026, the rebuilt local Compose service passed TLS admission,
+authenticated discovery, setup status and a live one-computer Pro inventory read.
+Its 46-tool catalogue contains only read-only tools. Direct write calls received
+HTTP 403. All six container security regressions passed in the rebuilt runtime.
 
-All nine documentation tools passed on 7 October. Specification discovery,
-endpoint details and response-schema reads passed again on 8 October, along with
-rejection of upstream `execute-request`. Platform still needs its separate
-credentials and live probes. Protect and Security Cloud were not included in
-these live checks. External OAuth linking and gateway policy remain untested.
+All nine documentation tools passed representative live calls. The generic
+wrapper used `list-specs`. Direct upstream `get-server-variables` calls rejected
+advertised Pro specification titles, so that separate operation remains affected
+by an upstream limitation. See [Documentation](DOCUMENTATION.md#live-upstream-limitation).
+
+Platform Blueprint and benchmark calls reported missing configuration. Platform,
+Protect and Security Cloud live access remains unverified because their
+credentials are absent. External OAuth linking, ChatGPT installation and gateway
+policy remain untested. See [Release readiness](RELEASE_READINESS.md) for the
+current candidate's offline checks and test audit.
 
 The latest dependency audit found no known vulnerabilities in the 45 locked
 external package/version records. The image scan retains two Medium Python

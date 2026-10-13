@@ -61,3 +61,15 @@ execute that operation against a tenant.
 The upstream tool list is cached in memory. `refresh_jamf_docs_cache` refreshes
 that list; endpoint content is fetched on demand. Offline tests mock upstream
 access and exercise these tools through the main MCP interface.
+
+## Live upstream limitation
+
+On 13 October 2026, `get-server-variables` returned an error for the advertised
+`jamf-pro=Jamf Pro API` and `jamf-pro=Classic API` titles. The same calls failed
+directly against the public Jamf MCP service. Unqualified titles also failed.
+The adapter preserves these upstream errors. Generic `list-specs` calls and
+all eight dedicated documentation tools passed through the local Docker server.
+
+Malformed generic arguments, including JSON `null`, are rejected locally before
+opening an upstream connection. They return an error-marked result with
+`Tool arguments must be a JSON object`. Invalid JSON has its separate parse error.

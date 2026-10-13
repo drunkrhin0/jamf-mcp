@@ -198,3 +198,17 @@ Packaging checks cover both connection formats, skill preservation, invalid
 connection metadata and refusal to overwrite existing output. The local stdio
 contract still passes for modern and legacy clients. These are offline checks;
 ChatGPT registration, installation and live reads remain pending.
+
+## Local release checks on 13 October 2026
+
+The rebuilt wheel passed initialization, a 46-tool read-only catalogue, setup,
+malformed documentation input and direct-write rejection outside the checkout
+in modern and legacy MCP modes. The rebuilt Docker service passed TLS admission,
+Pro inventory, representative calls to all nine documentation tools and direct
+write rejection. All six container security regressions passed. See
+[Release readiness](RELEASE_READINESS.md) for the audit and remaining limitations.
+
+These checks establish local package and Docker behavior. ChatGPT registration,
+installation and OAuth linking still need a reachable host connection. The
+local plugin was not exercised through the desktop marketplace in this run.
+Platform, Protect and Security Cloud live reads remain unverified.
