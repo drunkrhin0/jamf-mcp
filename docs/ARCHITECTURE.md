@@ -41,6 +41,6 @@ An external deployment therefore needs an access policy appropriate to that
 configured tenant. [Remote validation](REMOTE_VALIDATION.md) describes host OAuth
 and gateway checks. Offline tests do not establish those external behaviors.
 
-The local [Compose deployment](LOCAL_DOCKER.md) binds only to localhost, uses TLS,
+The local [Compose deployment](DOCKER.md) binds only to localhost, uses TLS,
 accepts a reader token and exposes Pro, Platform and docs. Record live results
 per product; setup status alone is not evidence of accepted backend credentials.

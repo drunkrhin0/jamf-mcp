@@ -64,8 +64,6 @@ async def call_upstream_tool(tool_name: str, arguments: dict[str, Any]) -> CallT
     """Call an approved documentation tool, preserving its full MCP result."""
     if tool_name not in DOCUMENTATION_TOOLS:
         raise ValueError(f"Unsupported documentation tool: {tool_name}")
-    if not isinstance(arguments, dict):
-        raise ValueError("Tool arguments must be a JSON object")
     async with Client(JAMF_DOCS_MCP_URL) as client:
         return await client.call_tool(tool_name, arguments)
 
@@ -104,6 +102,8 @@ async def forward_documentation_tool(
         The unchanged upstream result, or a structured execution error.
     """
     try:
+        if not isinstance(arguments, dict):
+            raise ValueError("Tool arguments must be a JSON object")
         if "title" in arguments:
             arguments = {**arguments, "title": resolve_spec_title(arguments["title"])}
         return await call_upstream_tool(tool_name, arguments)

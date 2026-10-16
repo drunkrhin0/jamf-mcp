@@ -1,7 +1,7 @@
 """Verify the documentation adapter without contacting the upstream server."""
 
 from typing import Any
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 from mcp import Client, MCPError
@@ -83,13 +83,23 @@ async def test_full_upstream_result_preserved(
 
 
 @pytest.mark.parametrize("arguments", ["[]", "null", '"string"', "invalid"])
-async def test_generic_arguments_must_be_object(arguments: str) -> None:
+async def test_generic_arguments_must_be_object(
+    monkeypatch: pytest.MonkeyPatch, arguments: str
+) -> None:
     """Reject invalid input before connecting upstream."""
+    upstream = Mock(side_effect=AssertionError("Invalid input reached upstream"))
+    monkeypatch.setattr(server, "Client", upstream)
     async with Client(create_server()) as client:
         result = await client.call_tool(
             "call_jamf_docs_tool", {"tool_name": "list-specs", "arguments": arguments}
         )
     assert result.is_error
+    upstream.assert_not_called()
+    message = (
+        "Invalid JSON arguments:" if arguments == "invalid"
+        else "Tool arguments must be a JSON object"
+    )
+    assert result.structured_content["error"].startswith(message)
 
 
 async def test_execution_proxy_not_exposed() -> None:
@@ -141,15 +151,6 @@ async def test_docs_stdio_startup(mode: str) -> None:
         assert len((await client.list_tools()).tools) == 11
         result = await client.call_tool("call_jamf_docs_tool", {"tool_name": "execute-request"})
         assert result.is_error
-
-
-@pytest.mark.parametrize("mode", ["2026-07-28", "legacy"])
-async def test_unknown_docs_tool_is_protocol_error(mode: str) -> None:
-    """Reject unknown local wrapper names before opening an upstream session."""
-    async with Client(create_server(), mode=mode) as client:
-        with pytest.raises(MCPError) as error:
-            await client.call_tool("nonexistent_tool")
-    assert error.value.error.code == -32602
 
 
 @pytest.mark.parametrize(

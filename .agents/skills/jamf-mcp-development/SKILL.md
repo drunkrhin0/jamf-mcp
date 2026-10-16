@@ -16,4 +16,4 @@ when assessing deployment evidence.
 
 Run `./scripts/check.sh` for validation. Update tool counts and exact privileges
 when the catalogue changes. For live reads, follow
-[Local Docker](../../../docs/LOCAL_DOCKER.md) and report each product separately.
+[Docker setup](../../../docs/DOCKER.md) and report each product separately.

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "jamf-mcp",
+  "version": "0.3.0",
+  "description": "Jamf inventory, device troubleshooting and compliance workflows.",
+  "author": {
+    "name": "Jamf MCP maintainers"
+  },
+  "repository": "https://github.com/drunkrhin0/jamf-mcp",
+  "license": "MIT",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Jamf MCP",
+        "shortDescription": "Inspect Jamf inventory, device reports and compliance.",
+        "longDescription": "Jamf workflows for ChatGPT and Codex. The local package starts a stdio server with writes disabled. Live validation covers read-only workflows; tenant access needs separately configured credentials.",
+        "developerName": "Jamf MCP maintainers",
+        "category": "Productivity",
+        "capabilities": [
+          "Read"
+        ],
+        "defaultPrompt": [
+          "Check Jamf setup status through this plugin.",
+          "List computers with names and serial numbers.",
+          "Investigate DDM status for a Jamf-managed computer.",
+          "Assess a Jamf Platform compliance benchmark."
+        ]
+      },
+      "onboardingSkill": "./skills/jamf-setup-status/SKILL.md"
+    }
+  }
+}

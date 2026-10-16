@@ -22,4 +22,5 @@ run_python -m ruff check \
     src/jamf_mcp/tools/_registry.py \
     src/jamf_mcp/tools/docs.py \
     scripts/validate_remote.py \
+    scripts/package_openai_plugin.py \
     tests

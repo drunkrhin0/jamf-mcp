@@ -355,7 +355,6 @@ inherit the shell's PATH, use the absolute path to `uv`.
 
 The default catalogue includes all products and documentation. Add
 `--products pro platform docs` to limit it, or `--read-only` to exclude writes.
-The old `jamf-mcp` command is retained as a compatibility alias.
 
 ### Remote HTTP
 
@@ -370,7 +369,7 @@ For the local Compose service, configure a client supporting Streamable HTTP:
 | TLS trust | Explicitly trust `.docker-local/server.crt` in the client |
 
 The token is local to your machine and is separate from the Jamf credentials.
-Do not disable certificate verification. Follow [Local Docker](LOCAL_DOCKER.md)
+Do not disable certificate verification. Follow [Docker setup](DOCKER.md)
 for startup and read-only live tests. Public OAuth or gateway deployments use
 [Remote validation](REMOTE_VALIDATION.md).
 

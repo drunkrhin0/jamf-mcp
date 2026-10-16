@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 from collections import Counter
@@ -181,3 +182,20 @@ def test_dependency_check_reports_requirements_drift(tmp_path: Path) -> None:
 
     with pytest.raises(AssertionError, match="retro-parity-drift-fixture"):
         assert_dependency_parity(pyproject_path, requirements_path)
+
+
+def test_release_versions_match() -> None:
+    """One release identifies the Python package, lock and bundled plugin."""
+    from jamf_mcp import __version__
+
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
+    lock = tomllib.loads((ROOT / "uv.lock").read_text())
+    locked = [package for package in lock["package"] if package["name"] == project["name"]]
+    assert len(locked) == 1
+    versions = {
+        "runtime": __version__,
+        "lock": locked[0]["version"],
+        "plugin": json.loads((ROOT / "plugins/jamf-mcp/plugin.json").read_text())["version"],
+        "release manifest": json.loads((ROOT / ".release-please-manifest.json").read_text())["."],
+    }
+    assert set(versions.values()) == {project["version"]}, versions
