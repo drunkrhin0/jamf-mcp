@@ -9,7 +9,7 @@
   and [API contracts](docs/PLATFORM_API_RESEARCH.md).
 - Registration, results or authorization: [Architecture](docs/ARCHITECTURE.md).
 - Code, dependencies, tests or releases: [Development](docs/DEVELOPMENT.md).
-- Plugin packaging or skills: [Plugin setup](docs/OPENAI_PLUGIN.md).
+- OpenAI plugin installation, packaging or skills: [Plugin setup](docs/OPENAI_PLUGIN.md).
 - Container base or backports: [Security patches](docker/SECURITY_PATCHES.md).
 - Hosted OAuth or gateway deployment: [Remote validation](docs/REMOTE_VALIDATION.md).
 

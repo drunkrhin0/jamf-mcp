@@ -18,8 +18,12 @@ in your local environment or password manager.
 
 Follow [Installation](docs/INSTALLATION.md) for manual setup. Use
 [Docker Compose](docs/DOCKER.md) for a local service with TLS and read-only
-access. For the bundled skills and local plugin, follow
-[Plugin setup](docs/OPENAI_PLUGIN.md).
+access.
+
+This repository includes a local OpenAI plugin with skills for setup, inventory
+reporting, device troubleshooting and compliance assessment. It starts the server
+in read-only mode. Follow [Plugin setup](docs/OPENAI_PLUGIN.md) to install it
+in a supported local host.
 
 ## What it supports
 
