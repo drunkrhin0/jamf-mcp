@@ -1,4 +1,4 @@
 # Copyright 2026, Jamf Software LLC
 """Jamf MCP: Jamf management and API documentation through one MCP endpoint."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
